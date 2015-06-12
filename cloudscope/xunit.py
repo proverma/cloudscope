@@ -18,6 +18,7 @@ class XUnitManager(object):
         self.lastBuildNumber = lastBuildNumber
         self.es = Elasticsearch()
 
+        #TODO put this json in seprate file
         xunitMapping = { "mappings": {
                             "testjob": {
                                 "properties": {
@@ -70,6 +71,7 @@ class XUnitManager(object):
                 report = xmltodict.parse(requests.get(u, auth=HTTPBasicAuth(self.user, self.password)).content)
                 testSuite = report["testsuites"]["testsuite"]
                 print u
+                #TODO : fix duplicate code
                 if isinstance(testSuite, list):
                     for t in testSuite :
                         id = self.indexTestSuite(t, k)
@@ -90,6 +92,7 @@ class XUnitManager(object):
     def indexTestcase(self, testcases, testSuiteId):
         #if a suite has just one testcase, cml2dict returns an object instead of dict, handling that scenario
         self.testCaseCounter = 0
+        #TODO : fix duplicate code
         if isinstance(testcases,list) :
             for t in testcases:
                 self.testCaseCounter +=1
@@ -106,8 +109,8 @@ class XUnitManager(object):
         testJob = {
             "name" : name,
             "id" : int(id),
-            "time" : int(time)/1000,
-            # "time" : datetime.datetime.fromtimestamp(int("1433803101629")/1000).strftime('%Y-%m-%d %H:%M:%S'),
+            #"time" : int(time)/1000,
+            "time" : datetime.datetime.fromtimestamp(int(time)/1000).strftime('%Y-%m-%dT%H:%M:%S'),
             "result" : result,
             "duration" : duration
         }
