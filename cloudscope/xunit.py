@@ -6,6 +6,7 @@ import xmltodict
 from elasticsearch import Elasticsearch
 import datetime
 import json
+from xunitMapping import xunitMapping
 
 
 class XUnitManager(object):
@@ -21,46 +22,13 @@ class XUnitManager(object):
         self.last_build_number = last_build_number
         self.es = Elasticsearch()
 
-        xunitMapping = {"mappings": {
-            "testjob": {
-                "properties": {
-                    "duration": {
-                        "type": "long"
-                    },
-                    "id": {
-                        "type": "long"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "result": {
-                        "type": "string"
-                    },
-                    "time": {
-                        "type": "date"
-                    }
-                }
-            },
-            "testsuite": {
-                "_parent": {
-                    "type": "testjob"
-                }
-            },
-            "testcase": {
-                "_parent": {
-                    "type": "testsuite"
-                }
-            }
-        }
-        }
-
         # connects to elasticsearch and stores  tesctsuit,
         # testjob and testcases information into data
 
         r = requests.put(
-            "http://23.253.95.62:9200/" + self.project, data=json.dumps(xunitMapping))
+            "http://localhost:9200/" + self.project, data=json.dumps(xunitMapping))
         # TODO : make this api call work
-        # self.es.indices.put_mapping
+        # self.es.indices.put_mapping()
         print r.json()
 
     def post_xunit_reports(self):
