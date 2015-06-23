@@ -22,13 +22,10 @@ class XUnitManager(object):
         self.last_build_number = last_build_number
         self.es = Elasticsearch()
 
-        # connects to elasticsearch and stores  tesctsuit,
-        # testjob and testcases information into data
-
         r = requests.put(
             "http://localhost:9200/" + self.project, data=json.dumps(xunitMapping))
         # TODO : make this api call work
-        # self.es.indices.put_mapping()
+        # print self.es.create(index=self.project, body=json.dumps(xunitMapping), doc_type='JSON', id='123333')
         print r.json()
 
     def post_xunit_reports(self):
