@@ -7,6 +7,7 @@ from elasticsearch import Elasticsearch
 import datetime
 import json
 from xunitMapping import xunitMapping
+es = Elasticsearch()
 
 
 class XUnitManager(object):
@@ -24,8 +25,9 @@ class XUnitManager(object):
 
         r = requests.put(
             "http://localhost:9200/" + self.project, data=json.dumps(xunitMapping))
-        # TODO : make this api call work
-        # print self.es.create(index=self.project, body=json.dumps(xunitMapping), doc_type='JSON', id='123333')
+
+        self.es.indices.put_mapping(index=self.project,
+                                    doc_type=json, body=xunitMapping, ignore=400)
         print r.json()
 
     def post_xunit_reports(self):
