@@ -34,11 +34,12 @@ class XUnitManager(object):
         and parsing from xml to python dictionary
         """
         build_urls = self.get_new_builds(self.job_url, self.last_build_number)
+        print build_urls
         for k in build_urls:
             response_json = self.call_jenkins(k + '/api/json')
-            self.index_test_job(k, response_json["full_display_name"], response_json["id"],
+            self.index_test_job(k, response_json["fullDisplayName"], response_json["id"],
                                 response_json[
-                "time_stamp"], response_json["result"],
+                "timestamp"], response_json["result"],
                 response_json["duration"])
             urls = self.get_xunit_report_urls(k, response_json["artifacts"])
             for u in urls:
@@ -50,13 +51,13 @@ class XUnitManager(object):
                 # TODO : fix duplicate code
                 if isinstance(testSuite, list):
                     for t in testSuite:
-                        id = self.index_testsuite(t, k)
+                        id = self.index_test_suite(t, k)
                         try:
                             self.index_testcase(t["testcase"], id)
                         except KeyError:
                             print "no testcase found"
                 else:
-                    id = self.index_testsuite(testSuite, k)
+                    id = self.index_test_suite(testSuite, k)
                     try:
                         self.index_testcase(testSuite["testcase"], id)
                     except KeyError:
@@ -90,7 +91,7 @@ class XUnitManager(object):
         testJob = {
             "name": name,
             "id": int(id),
-            "time": datetime.datetime.from_time_stamp(int(time) / 1000).
+            "time": datetime.datetime.fromtimestamp(int(time) / 1000).
             strftime('%Y-%m-%dT%H:%M:%S'), "result": result,
             "duration": duration
         }
@@ -127,9 +128,8 @@ class XUnitManager(object):
         """
         builds = []
         response_json = self.call_jenkins(job_url + 'api/json')
-
         for b in response_json["builds"]:
-            if b["number"] > last_build_number:
+            if int(b["number"]) > int(last_build_number):
                 builds.append(b["url"])
 
         return builds
