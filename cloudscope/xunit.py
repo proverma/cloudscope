@@ -23,11 +23,15 @@ class XUnitManager(object):
         self.last_build_number = last_build_number
         self.es = Elasticsearch()
 
+        self.es.indices.clear_cache(index=self.project)
         r = requests.put(
-            "http://localhost:9200/" + self.project, data=json.dumps(xunitMapping))
+            "http://localhost:9200/" + self.project,
+            data=json.dumps(xunitMapping))
 
         self.es.indices.put_mapping(index=self.project,
-                                    doc_type=json, body=xunitMapping, ignore=400)
+                                    doc_type=json,
+                                    body=xunitMapping,
+                                    ignore=400)
         print r.json()
 
     def post_xunit_reports(self):
@@ -39,10 +43,11 @@ class XUnitManager(object):
         print build_urls
         for k in build_urls:
             response_json = self.call_jenkins(k + '/api/json')
-            self.index_test_job(k, response_json["fullDisplayName"], response_json["id"],
-                                response_json[
-                "timestamp"], response_json["result"],
-                response_json["duration"])
+            self.index_test_job(k, response_json["fullDisplayName"],
+                                response_json["id"], response_json["timestamp"],
+                                response_json["result"], response_json["duration"],
+                                response_json["estimatedDuration"], response_json["changeSet"],
+                                response_json["culprits"])
             urls = self.get_xunit_report_urls(k, response_json["artifacts"])
             for u in urls:
                 self.testsuite_counter = 0
@@ -88,14 +93,20 @@ class XUnitManager(object):
             self.es.index(index=self.project, id=testcase_id,
                           doc_type="testcase", body=testcases, parent=testsuite_id)
 
-    def index_test_job(self, url, name, id, time, result, duration):
+    def index_test_job(self, url, name, id, time, result, duration, estimated_duration,
+                       changeSet, culprits):
         """defining testjob index"""
+        author_list = [item['author']['fullName'] for item in changeSet['items']]
+        culprit_list = [each['fullName'] for each in culprits]
         testJob = {
             "name": name,
             "id": int(id),
             "time": datetime.datetime.fromtimestamp(int(time) / 1000).
             strftime('%Y-%m-%dT%H:%M:%S'), "result": result,
-            "duration": duration
+            "duration": duration,
+            "estimatedDuration": estimated_duration,
+            "changeSet": author_list,
+            "culprits": culprit_list
         }
 
         self.es.index(
