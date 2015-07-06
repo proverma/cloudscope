@@ -1,5 +1,4 @@
-
-xunitMapping = {"mappings": {
+xunitMapping = { "mappings": {
                     "testjob": {
                         "properties": {
                             "duration": {
@@ -21,8 +20,11 @@ xunitMapping = {"mappings": {
                                 "type": "date"
                             },
                             "changeSet": {
+                                "type": "object",
                                 "items": {
+                                    "type": "list",
                                     "author": {
+                                        "type": "object",
                                         "fullName": {
                                             "type": "string"
                                         }
@@ -30,6 +32,7 @@ xunitMapping = {"mappings": {
                                 }
                             },
                             "culprits": {
+                                "type": "list",
                                 "fullName": {
                                     "type": "string"
                                 }
