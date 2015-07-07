@@ -20,10 +20,13 @@ xunitMapping = {"mappings": {
                 "type": "date"
             },
             "changeSet": {
+                "type": "object",
                 "properties": {
                     "items": {
+                        "type": "list",
                         "properties": {
                             "author": {
+                                "type": "object",
                                 "properties": {
                                     "fullName": {
                                         "type": "string"
@@ -37,7 +40,8 @@ xunitMapping = {"mappings": {
 
             },
             "culprits": {
-                "properties" : {
+                "type": "list",
+                "properties": {
                     "fullName": {
                         "type": "string"
                     }
