@@ -57,20 +57,20 @@ class XUnitManager(object):
                 report = xmltodict.parse(
                     requests.get(u, auth=HTTPBasicAuth(self.user,
                                                        self.password)).content)
-                testSuite = report["testsuites"]["testsuite"]
+                testsuite = report["testsuites"]["testsuite"]
                 print u
                 # TODO : fix duplicate code
-                if isinstance(testSuite, list):
-                    for t in testSuite:
+                if isinstance(testsuite, list):
+                    for t in testsuite:
                         id = self.index_test_suite(t, k)
                         try:
                             self.index_testcase(t["testcase"], id)
                         except KeyError:
                             print "no testcase found"
                 else:
-                    id = self.index_test_suite(testSuite, k)
+                    id = self.index_test_suite(testsuite, k)
                     try:
-                        self.index_testcase(testSuite["testcase"], id)
+                        self.index_testcase(testsuite["testcase"], id)
                     except KeyError:
                         print "no testcase found"
 
@@ -97,34 +97,34 @@ class XUnitManager(object):
                           parent=testsuite_id)
 
     def index_test_job(self, url, name, id, time, result, duration,
-                       estimatedDuration, changeSet, culprits):
+                       estimated_duration, change_set, culprits):
         """defines testjob index which includes: testjob name, id,
            timestamp: when the test was run, test execution duration,
-           estimatedDuration, changeSet: person who created the build,
+           estimatedDuration, change_set: person who created the build,
            culprits: person who contributed in the build."""
 
         author_list = [item['author']['fullName']
-                       for item in changeSet['items']]
+                       for item in change_set['items']]
         culprit_list = [each['fullName'] for each in culprits]
-        testJob = {
+        test_job = {
             "name": name,
             "id": int(id),
             "time": datetime.datetime.fromtimestamp(int(time) / 1000).
             strftime('%Y-%m-%dT%H:%M:%S'), "result": result,
             "duration": duration,
-            "estimatedDuration": estimatedDuration,
-            "changeSet": author_list,
+            "estimatedDuration": estimated_duration,
+            "change_set": author_list,
             "culprits": culprit_list
         }
 
         self.es.index(
-            index=self.project, doc_type="testjob", id=url, body=testJob)
+            index=self.project, doc_type="testjob", id=url, body=test_job)
 
     def index_test_suite(self, testsuite, build_url):
         """creates the index for testsuites and checks
            for the testcase in testsuites."""
         try:
-            # testSuite.pop("testcase")
+            # testsuite.pop("testcase")
             self.testsuite_counter += 1
             testsuite_id = build_url + "testsuite/" + \
                 str(self.testsuite_counter)
@@ -135,8 +135,6 @@ class XUnitManager(object):
             return testsuite_id
         except KeyError:
             print "No Testcase found"
-
-        # self.es.index()
 
     def call_jenkins(self, url):
         """
