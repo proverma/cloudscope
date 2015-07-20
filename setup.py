@@ -9,6 +9,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        cloudscope=cloudscope.cli:cli
+        cloudscope=cloudscope.clic:clic
     ''',
 )
